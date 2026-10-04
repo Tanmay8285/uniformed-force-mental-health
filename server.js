@@ -250,5 +250,34 @@ const server = http.createServer(async (req, res) => {
   } catch (e) { return send(res, e.status || 500, { error: e.status ? e.message : 'A server error occurred.' }); }
 });
 
+function listen(port) {
+  return new Promise((resolve, reject) => {
+    const onError = error => {
+      server.off('listening', onListening);
+      reject(error);
+    };
+    const onListening = () => {
+      server.off('error', onError);
+      resolve(server.address().port);
+    };
+    server.once('error', onError);
+    server.once('listening', onListening);
+    server.listen(port, '127.0.0.1');
+  });
+}
+
 await loadStore();
-server.listen(PORT, '127.0.0.1', () => console.log(`SAHAARA demo listening at http://127.0.0.1:${PORT}${demoConfig ? ' (demo-only keys; configure .env before real data)' : ''}`));
+try {
+  let activePort;
+  try {
+    activePort = await listen(PORT);
+  } catch (error) {
+    if (error.code !== 'EADDRINUSE') throw error;
+    console.warn(`Port ${PORT} is already in use; selecting an available port.`);
+    activePort = await listen(0);
+  }
+  console.log(`SAHAARA demo listening at http://127.0.0.1:${activePort}${demoConfig ? ' (demo-only keys; configure .env before real data)' : ''}`);
+} catch (error) {
+  console.error('Could not start the SAHAARA server:', error);
+  process.exitCode = 1;
+}
