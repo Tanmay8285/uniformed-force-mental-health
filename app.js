@@ -7,21 +7,22 @@ let toastTimer;
 
 const readabilityStyles = document.createElement('style');
 readabilityStyles.textContent = `
-body { font-size: 15px; }
-.brand strong { font-size: 19px; }
-.brand small, .overline, .overline2, .hero .eyebrow, .storyfoot, .field label, .modal .field label, .passhint, .authfine, .navlabel, .privacyhint b, .privacyhint p, .user b, .user small, .crumb, .date, .pagehead p, .statustop, .statusmid p, .statusbottom, .metricfoot, .cardhead p, .sigtext b, .sectiontag, .privacyrow b, .trendrow b, .trendrow small, .history td, .foot, .modal > p, .field small, .personrow b, .personrow small, .autherror, .error, .toast, .airesult, .support p, .support a, .link, .privacycard p, .privacycard b, .patientlist p, .trend, .sigval, .scorepill, .history th, .legend, .ylab, .xlab, .metriclabel, .badge { font-size: 10px !important; }
-.principles, .authcard > p, .tabs button, .rolechoice button, .checkline, .btn, .nav button, .logout, .hero p, .statusmid h3, .cardhead h2, .support h3 { font-size: 12px !important; }
-.field input, .field select, .field textarea, .rating button { font-size: 13px !important; }
-.authcard h2 { font-size: 24px; }
+body, body * { font-family: 'DM Sans', sans-serif !important; }
+body { font-size: 16px; }
+.brand strong { font-size: 20px; }
+.brand small, .overline, .overline2, .hero .eyebrow, .storyfoot, .field label, .modal .field label, .passhint, .authfine, .navlabel, .privacyhint b, .privacyhint p, .user b, .user small, .crumb, .date, .pagehead p, .statustop, .statusmid p, .statusbottom, .metricfoot, .cardhead p, .sigtext b, .sectiontag, .privacyrow b, .trendrow b, .trendrow small, .history td, .foot, .modal > p, .field small, .personrow b, .personrow small, .autherror, .error, .toast, .airesult, .support p, .support a, .link, .privacycard p, .privacycard b, .patientlist p, .trend, .sigval, .scorepill, .history th, .legend, .ylab, .xlab, .metriclabel, .badge { font-size: 12px !important; }
+.principles, .authcard > p, .tabs button, .rolechoice button, .checkline, .btn, .nav button, .logout, .hero p, .statusmid h3, .cardhead h2, .support h3 { font-size: 14px !important; }
+.field input, .field select, .field textarea, .rating button { font-size: 15px !important; }
+.authcard h2 { font-size: 25px; }
 .storycopy h1 { font-size: clamp(34px, 4.6vw, 60px); }
-.storycopy p { font-size: 15px; }
-.pagehead h1 { font-size: 24px !important; }
-.hero h2 { font-size: 20px; }
-.metricvalue { font-size: 20px !important; }
-.ring span { font-size: 17px; }
-.modal h3 { font-size: 16px; }
-.close { font-size: 21px; }
-.supporticon { font-size: 15px; }
+.storycopy p { font-size: 16px; }
+.pagehead h1 { font-size: 25px !important; }
+.hero h2 { font-size: 21px; }
+.metricvalue { font-size: 21px !important; }
+.ring span { font-size: 18px; }
+.modal h3 { font-size: 18px; }
+.close { font-size: 22px; }
+.supporticon { font-size: 17px; }
 `;
 document.head.append(readabilityStyles);
 
