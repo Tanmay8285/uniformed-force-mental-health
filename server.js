@@ -244,11 +244,26 @@ const server = http.createServer(async (req, res) => {
       const prompt = `Offer a short, compassionate, non-clinical wellbeing reflection for a uniformed service member using only these de-identified self-reported numeric check-in factors from up to seven entries: ${JSON.stringify(data)}. Do not infer diagnosis, operational fitness, duty eligibility, or risk to others. Do not claim validated prediction. Give 2-3 practical, low-risk recovery ideas and invite the person to speak with a qualified professional if distress persists. If a response suggests immediate danger, advise contacting local emergency services or a trusted crisis professional. Do not mention military intelligence, deployments, unit, rank, names, or request sensitive operational details. Keep under 130 words.`;
       try {
         const response = await fetch('https://api.mistral.ai/v1/chat/completions', { method: 'POST', headers: { 'Authorization': `Bearer ${process.env.MISTRAL_API_KEY}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ model: process.env.MISTRAL_MODEL || 'mistral-small-2603', messages: [{ role: 'user', content: prompt }], temperature: 0.3, max_tokens: 220 }), signal: AbortSignal.timeout(25000) });
-        const answer = await response.json();
-        if (!response.ok) return send(res, 502, { error: 'Mistral could not complete the request. Check the server key and model configuration.' });
+        const answer = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          const model = process.env.MISTRAL_MODEL || 'mistral-small-2603';
+          const detail = String(answer.message || answer.error?.message || '').slice(0, 240);
+          const error = response.status === 401 || response.status === 403
+            ? `Mistral rejected the server API key (HTTP ${response.status}). Check that MISTRAL_API_KEY in Render is active and has API access.`
+            : response.status === 404
+              ? `Mistral could not find model "${model}". Set MISTRAL_MODEL to an available model ID.`
+              : response.status === 429
+                ? 'Mistral rate limit or usage quota reached. Check the API plan and try again later.'
+                : response.status === 400
+                  ? `Mistral rejected the request${detail ? `: ${detail}` : ` (HTTP ${response.status})`}. Check the model and API request settings.`
+                  : response.status >= 500
+                    ? `Mistral is temporarily unavailable (HTTP ${response.status}). Try again shortly.`
+                    : `Mistral request failed (HTTP ${response.status})${detail ? `: ${detail}` : '.'}`;
+          return send(res, 502, { error });
+        }
         audit('Member requested AI reflection (de-identified factors sent to Mistral)', user.id); await persist();
         return send(res, 200, { advice: answer.choices?.[0]?.message?.content || 'No suggestion was returned.', model: process.env.MISTRAL_MODEL || 'mistral-small-2603' });
-      } catch { return send(res, 502, { error: 'Could not reach the AI service. You can still use the local check-in suggestions.' }); }
+      } catch (error) { return send(res, 502, { error: error.name === 'TimeoutError' ? 'Mistral took too long to respond. Try again.' : 'Could not reach Mistral. Check the server network connection and try again.' }); }
     }
     if (req.method === 'GET' && url.pathname === '/api/export') {
       if (user.role !== 'personnel') return send(res, 403, { error: 'Only personnel can export their own history.' });
