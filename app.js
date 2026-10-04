@@ -5,6 +5,26 @@ let role = 'personnel';
 let checkValues = { feltStress: 3, fatigue: 3, workload: 3, mood: 3, support: 3, sleepQuality: 3, recovery: 3, eventImpact: 1, physicalStrain: 3, shiftPattern: 'day' };
 let toastTimer;
 
+const readabilityStyles = document.createElement('style');
+readabilityStyles.textContent = `
+body { font-size: 15px; }
+.brand strong { font-size: 19px; }
+.brand small, .overline, .overline2, .hero .eyebrow, .storyfoot, .field label, .modal .field label, .passhint, .authfine, .navlabel, .privacyhint b, .privacyhint p, .user b, .user small, .crumb, .date, .pagehead p, .statustop, .statusmid p, .statusbottom, .metricfoot, .cardhead p, .sigtext b, .sectiontag, .privacyrow b, .trendrow b, .trendrow small, .history td, .foot, .modal > p, .field small, .personrow b, .personrow small, .autherror, .error, .toast, .airesult, .support p, .support a, .link, .privacycard p, .privacycard b, .patientlist p, .trend, .sigval, .scorepill, .history th, .legend, .ylab, .xlab, .metriclabel, .badge { font-size: 10px !important; }
+.principles, .authcard > p, .tabs button, .rolechoice button, .checkline, .btn, .nav button, .logout, .hero p, .statusmid h3, .cardhead h2, .support h3 { font-size: 12px !important; }
+.field input, .field select, .field textarea, .rating button { font-size: 13px !important; }
+.authcard h2 { font-size: 24px; }
+.storycopy h1 { font-size: clamp(34px, 4.6vw, 60px); }
+.storycopy p { font-size: 15px; }
+.pagehead h1 { font-size: 24px !important; }
+.hero h2 { font-size: 20px; }
+.metricvalue { font-size: 20px !important; }
+.ring span { font-size: 17px; }
+.modal h3 { font-size: 16px; }
+.close { font-size: 21px; }
+.supporticon { font-size: 15px; }
+`;
+document.head.append(readabilityStyles);
+
 async function api(url, options = {}) {
   const response = await fetch(url, { ...options, headers: { ...(options.body ? { 'Content-Type': 'application/json' } : {}), ...(options.headers || {}) } });
   const data = await response.json().catch(() => ({ error: 'The server returned an unreadable response.' }));
