@@ -20,7 +20,7 @@ SAHAARA is a privacy-conscious wellbeing check-in concept for uniformed personne
 | **Problem statement** | AI-Based Predictive Personnel Stress and Welfare Monitoring System for Uniformed Forces |
 | **Theme** | Wellbeing, AI, and secure data management |
 | **Category** | Software |
-| **Team** | Add your team name here |
+| **Team** | _Eastnewbies_ |
 
 ---
 
@@ -111,7 +111,7 @@ npm install
 npm start
 ```
 
-Open [http://localhost:3010](http://localhost:3010). Local configuration can be provided in a private `.env` file. Use fresh secrets; never commit `.env` or share credentials in source code.
+Open https://uniformed-force-mental-health-2.onrender.com  Local configuration can be provided in a private `.env` file. Use fresh secrets; never commit `.env` or share credentials in source code.
 
 ### Environment Variables
 
