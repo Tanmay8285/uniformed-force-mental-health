@@ -4,6 +4,7 @@ let activePersonId = null;
 let role = 'personnel';
 let checkValues = { feltStress: 3, fatigue: 3, workload: 3, mood: 3, support: 3, sleepQuality: 3, recovery: 3, eventImpact: 1, physicalStrain: 3, shiftPattern: 'day' };
 let toastTimer;
+let aiAvailable = false;
 
 const readabilityStyles = document.createElement('style');
 readabilityStyles.textContent = `
@@ -23,6 +24,7 @@ body { font-size: 16px; }
 .modal h3 { font-size: 18px; }
 .close { font-size: 22px; }
 .supporticon { font-size: 17px; }
+.ai-status { margin: 8px 0; color: #52635a; }
 `;
 document.head.append(readabilityStyles);
 
@@ -195,13 +197,34 @@ async function loadAdmin() {
 }
 
 $('#doctorSummaryBtn').setAttribute('aria-describedby', 'doctorSummaryError');
+const aiStatus = document.createElement('p');
+aiStatus.className = 'ai-status';
+aiStatus.setAttribute('role', 'status');
+aiStatus.textContent = 'Checking Mistral availability…';
+$('#aiBtn').insertAdjacentElement('afterend', aiStatus);
+$('#aiBtn').disabled = true;
+async function configureAI() {
+  try {
+    const config = await api('/api/config');
+    aiAvailable = config.aiAvailable === true;
+    aiStatus.textContent = aiAvailable
+      ? `Mistral is ready · ${config.aiModel}`
+      : 'Mistral is not configured on this server. Add MISTRAL_API_KEY in the server environment.';
+  } catch {
+    aiAvailable = false;
+    aiStatus.textContent = 'Could not check Mistral availability. Try refreshing the page.';
+  }
+  $('#aiBtn').disabled = !aiAvailable;
+}
+configureAI();
 $('#aiBtn').onclick = async () => {
   clearError('#aiError'); $('#aiResult').classList.add('hidden');
+  if (!aiAvailable) return showError('#aiError', 'Mistral is not configured on this server yet.');
   if (!$('#aiConsent').checked) return showError('#aiError', 'Give separate consent first. No factors are sent without it.');
   $('#aiBtn').disabled = true; $('#aiBtn').textContent = 'Preparing reflection…';
   try { const data = await api('/api/ai-advice', { method: 'POST', body: JSON.stringify({ aiConsent: true }) }); $('#aiResult').textContent = data.advice; $('#aiResult').classList.remove('hidden'); }
   catch (error) { showError('#aiError', error.message); }
-  finally { $('#aiBtn').disabled = false; $('#aiBtn').textContent = 'Suggest supportive next steps'; }
+  finally { $('#aiBtn').disabled = !aiAvailable; $('#aiBtn').textContent = 'Suggest supportive next steps'; }
 };
 $('#exportBtn').onclick = async () => { try { const data = await api('/api/export'); const link = document.createElement('a'); link.href = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })); link.download = 'sahaara-my-checkins.json'; link.click(); setTimeout(() => URL.revokeObjectURL(link.href), 1000); } catch (error) { say(error.message); } };
 $('#resetBtn').onclick = () => openModal('resetModal');
