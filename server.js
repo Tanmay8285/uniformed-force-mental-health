@@ -18,6 +18,7 @@ try {
 } catch {}
 
 const PORT = Number(process.env.PORT || 3010);
+const HOST = process.env.HOST || '0.0.0.0';
 const COOKIE = 'sahaara.sid';
 const sessions = new Map();
 const encryptionKey = createHash('sha256').update(process.env.DATA_ENCRYPTION_KEY || 'LOCAL-DEMO-ONLY-change-this-before-use').digest();
@@ -262,7 +263,7 @@ function listen(port) {
     };
     server.once('error', onError);
     server.once('listening', onListening);
-    server.listen(port, '127.0.0.1');
+    server.listen(port, HOST);
   });
 }
 
