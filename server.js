@@ -119,7 +119,7 @@ function stressResult(c) {
 function normalizeCheckin(x) {
   const n = (v, min, max) => Number.isInteger(Number(v)) && Number(v) >= min && Number(v) <= max ? Number(v) : null;
   const result = { feltStress: n(x.feltStress, 1, 5), fatigue: n(x.fatigue, 1, 5), sleepHours: Number(x.sleepHours), sleepQuality: n(x.sleepQuality, 1, 5), workload: n(x.workload, 1, 5), mood: n(x.mood, 1, 5), support: n(x.support, 1, 5), shiftPattern: ['day', 'evening', 'night', 'rotating'].includes(x.shiftPattern) ? x.shiftPattern : null, recovery: n(x.recovery, 1, 5), eventImpact: n(x.eventImpact, 1, 5), physicalStrain: n(x.physicalStrain, 1, 5), note: String(x.note || '').trim().slice(0, 500) };
-  if (Object.entries(result).some(([k, v]) => !['note'].includes(k) && (!Number.isFinite(v) || v === null)) || result.sleepHours < 0 || result.sleepHours > 16) throw Object.assign(new Error('Please review each rating, shift-pattern and sleep-hours field.'), { status: 400 });
+  if (Object.entries(result).some(([k, v]) => !['note', 'shiftPattern'].includes(k) && (!Number.isFinite(v) || v === null)) || result.sleepHours < 0 || result.sleepHours > 16) throw Object.assign(new Error('Please review each rating, shift-pattern and sleep-hours field.'), { status: 400 });
   return result;
 }
 const server = http.createServer(async (req, res) => {
