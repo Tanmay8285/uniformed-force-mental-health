@@ -94,8 +94,17 @@ document.querySelectorAll('.rating button').forEach(button => button.addEventLis
 }));
 $('#saveCheck').onclick = async () => {
   clearError('#checkError');
+  const ratings = Object.fromEntries([...document.querySelectorAll('.rating')].map(group => [group.dataset.key, Number(group.querySelector('button.chosen')?.dataset.v)]));
+  const invalidRatings = Object.entries(ratings).filter(([, value]) => !Number.isInteger(value) || value < 1 || value > 5).map(([key]) => key);
+  const sleepValue = $('#sleep').value.trim();
+  const sleepHours = Number(sleepValue);
+  const shiftPattern = $('#shiftPattern').value;
+  const invalidFields = [...invalidRatings];
+  if (!sleepValue || !Number.isFinite(sleepHours) || sleepHours < 0 || sleepHours > 16) invalidFields.push('sleep hours (0–16)');
+  if (!['day', 'evening', 'night', 'rotating'].includes(shiftPattern)) invalidFields.push('shift pattern');
+  if (invalidFields.length) return showError('#checkError', `Please review: ${invalidFields.join(', ')}.`);
   try {
-    await api('/api/checkins', { method: 'POST', body: JSON.stringify({ ...checkValues, shiftPattern: $('#shiftPattern').value, sleepHours: Number($('#sleep').value), note: $('#note').value }) });
+    await api('/api/checkins', { method: 'POST', body: JSON.stringify({ ...ratings, shiftPattern, sleepHours, note: $('#note').value }) });
     closeModal('checkModal'); await loadHistory(); say('Saved to your private history.');
   } catch (error) { showError('#checkError', error.message); }
 };
