@@ -63,7 +63,15 @@ async function loadStore() {
     decipher.setAuthTag(buf.subarray(16, 32));
     store = JSON.parse(Buffer.concat([decipher.update(buf.subarray(32)), decipher.final()]).toString('utf8'));
   } catch (e) {
-    if (e.code !== 'ENOENT') throw new Error('Could not read or decrypt stored data. Check the database connection and keep the same DATA_ENCRYPTION_KEY used when the data was created.');
+    if (e.code === 'ENOENT') return;
+    if (!pgPool && process.env.RESET_ENCRYPTED_STORE_ON_START === 'true') {
+      const backup = `${STORE}.backup-${Date.now()}`;
+      const { rename } = await import('node:fs/promises');
+      await rename(STORE, backup);
+      console.warn(`Could not decrypt the local store. Preserved it at ${backup}; starting with an empty store.`);
+      return;
+    }
+    throw new Error('Could not read or decrypt stored data. Check the database connection and keep the same DATA_ENCRYPTION_KEY used when the data was created. For a disposable local-file demo store, set RESET_ENCRYPTED_STORE_ON_START=true to preserve the old file as a backup and start empty.');
   }
 }
 const cleanUser = u => ({ id: u.id, name: u.name, email: u.email, role: u.role, createdAt: u.createdAt });
